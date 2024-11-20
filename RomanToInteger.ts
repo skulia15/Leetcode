@@ -10,30 +10,37 @@ const romanToInt = (s: string): number => {
   ]);
 
   let sum = 0;
-
-  for (let i = 0; i < s.length; i++) {
+  const len = s.length;
+  for (let i = 0; i < len; i++) {
     let roman: string = s[i];
-    let value = numeralMap.get(roman);
+    let value = numeralMap.get(roman)!;
 
     // I can be placed before V (5) and X (10) to make 4 and 9.
     // X can be placed before L (50) and C (100) to make 40 and 90.
     // C can be placed before D (500) and M (1000) to make 400 and 900.
-    let nextRoman = s[i + 1];
-    if (roman === "I" && (nextRoman === "V" || nextRoman === "X")) {
-      i++;
-      if (nextRoman === "V") sum += 4;
-      else if (nextRoman === "X") sum += 9;
-    } else if (roman === "X" && (nextRoman === "L" || nextRoman === "C")) {
-      i++;
-      if (nextRoman === "L") sum += 40;
-      else if (nextRoman === "C") sum += 90;
-    } else if (roman === "C" && (nextRoman === "D" || nextRoman === "M")) {
-      i++;
-      if (nextRoman === "D") sum += 400;
-      else if (nextRoman === "M") sum += 900;
+    // let nextRoman = s[i + 1] || 0;
+    let nextValue = numeralMap.get(s[i + 1]) || 0;
+
+    if (value < nextValue) {
+      sum -= value!; // Subtraction case
     } else {
-      sum += value!;
+      sum += value; // Addition case
     }
+    // if (roman === "I" && (nextRoman === "V" || nextRoman === "X")) {
+    //   i++;
+    //   if (nextRoman === "V") sum += 4;
+    //   else if (nextRoman === "X") sum += 9;
+    // } else if (roman === "X" && (nextRoman === "L" || nextRoman === "C")) {
+    //   i++;
+    //   if (nextRoman === "L") sum += 40;
+    //   else if (nextRoman === "C") sum += 90;
+    // } else if (roman === "C" && (nextRoman === "D" || nextRoman === "M")) {
+    //   i++;
+    //   if (nextRoman === "D") sum += 400;
+    //   else if (nextRoman === "M") sum += 900;
+    // } else {
+    //   sum += value!;
+    // }
   }
 
   return sum;
