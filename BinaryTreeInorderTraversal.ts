@@ -10,15 +10,11 @@ import {
 
 const inorderTraversal = (root: TreeNode | null): number[] => {
   let res: number[] = [];
-  if (!root || root.val == null) return [];
+  if (!root) return [];
 
-  if (root?.left) {
-    res = res.concat(inorderTraversal(root.left));
-  }
+  res = res.concat(inorderTraversal(root.left));
   res.push(root.val);
-  if (root.right) {
-    res = res.concat(inorderTraversal(root.right));
-  }
+  res = res.concat(inorderTraversal(root.right));
 
   return res;
 };
