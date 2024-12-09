@@ -15,7 +15,7 @@ class Guard {
     ) {
         this.position = { x: startX, y: startY };
         this.direction = startDirection;
-        this.visited = new Set<string>();
+        this.visited = new Set<string>().add(`${startX},${startY}`);
         this.map = map;
     }
 
@@ -65,7 +65,9 @@ class Guard {
                 this.position = { x: x - 1, y: y };
                 break;
         }
-        this.visited.add(`${this.position.x},${this.position.y}`);
+        if (this.isInBounds()) {
+            this.visited.add(`${this.position.x},${this.position.y}`);
+        }
         // console.log(`Guard moved to (${this.position.x}, ${this.position.y})`);
     }
 
@@ -137,6 +139,7 @@ const day6 = () => {
     guard.startShift();
 
     console.log("Part 1 answer: ", guard.visited.size);
+    console.log(guard.visited);
 };
 
 day6();
