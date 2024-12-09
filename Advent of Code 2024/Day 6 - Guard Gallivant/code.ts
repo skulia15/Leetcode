@@ -6,6 +6,7 @@ class Guard {
     visited: Set<string>;
     map: string[][];
     directions = ["^", ">", "v", "<"];
+    startDirection: string;
 
     constructor(
         startX: number,
@@ -15,6 +16,7 @@ class Guard {
     ) {
         this.position = { x: startX, y: startY };
         this.direction = startDirection;
+        this.startDirection = startDirection;
         this.visited = new Set<string>().add(`${startX},${startY}`);
         this.map = map;
     }
@@ -68,7 +70,6 @@ class Guard {
         if (this.isInBounds()) {
             this.visited.add(`${this.position.x},${this.position.y}`);
         }
-        // console.log(`Guard moved to (${this.position.x}, ${this.position.y})`);
     }
 
     startShift() {
@@ -76,22 +77,35 @@ class Guard {
             if (!this.isInBounds()) {
                 break;
             }
-            // console.log(
-            //     `Guard is at (${guard.position.x}, ${guard.position.y}) facing ${guard.direction}`
-            // );
-            // printBoard(
-            //     this.map,
-            //     this.position.x,
-            //     this.position.y,
-            //     this.direction
-            // );
+
             if (this.isObstacleAhead()) {
                 this.turnRight();
-                // console.log(`Guard turned right, now facing ${guard.direction}`);
             } else {
                 this.move();
             }
         }
+    }
+
+    detectLoop() {
+        const visitedStates = new Set<string>();
+        while (true) {
+            if (!this.isInBounds()) {
+                break;
+            }
+            const state = `${this.position.x},${this.position.y},${this.direction}`;
+            if (visitedStates.has(state)) {
+                // Loop detected
+                return true;
+            }
+            visitedStates.add(state);
+
+            if (this.isObstacleAhead()) {
+                this.turnRight();
+            } else {
+                this.move();
+            }
+        }
+        return false;
     }
 }
 
@@ -107,6 +121,8 @@ const printBoard = (
             .join("")
     );
     console.log(board.join("\n"));
+
+    console.log("===============");
 };
 
 const day6 = () => {
@@ -115,13 +131,10 @@ const day6 = () => {
     const inputArr = input.split("\n").map((line) => line.split(""));
 
     const startPosition = { x: 0, y: 0 };
-    const startDirection = "^";
+    const startDirection: string = "^";
 
     for (let i = 0; i < inputArr.length; i++) {
         for (let j = 0; j < inputArr[i].length; j++) {
-            if (inputArr[i][j] === "#") {
-                // console.log(i, j)
-            }
             if (inputArr[i][j] === "^") {
                 startPosition.x = j;
                 startPosition.y = i;
@@ -139,7 +152,37 @@ const day6 = () => {
     guard.startShift();
 
     console.log("Part 1 answer: ", guard.visited.size);
-    console.log(guard.visited);
+
+    let addedObstructionCounter = 0;
+
+    guard.visited.forEach((coords) => {
+        const [x, y] = coords.split(",");
+
+        // Skip starting position
+        if (
+            parseInt(x) === startPosition.x &&
+            parseInt(y) === startPosition.y
+        ) {
+            return;
+        }
+
+        // Create a deep copy of the map
+        const tempMap = guard.map.map((row) => [...row]);
+
+        tempMap[parseInt(y)][parseInt(x)] = "#";
+
+        const tempGuard = new Guard(
+            startPosition.x,
+            startPosition.y,
+            startDirection,
+            tempMap
+        );
+
+        if (tempGuard.detectLoop()) {
+            addedObstructionCounter++;
+        }
+    });
+    console.log("Part 2 answer: ", addedObstructionCounter);
 };
 
 day6();
